@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>صافي — تنقية الصوت بالذكاء الاصطناعي</title>
+<meta name="description" content="تنقية الصوت والفيديو بالذكاء الاصطناعي — مجاناً، وعلى جهازك بدون رفع ملفات.">
+<meta name="theme-color" content="#0a0c11">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="صافي">
+<script>window.RNNOISE_URL='./lib/rnnoise.js';window.MB_URL='./lib/mediabunny.min.mjs';</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c11; --panel:#12161f; --panel2:#171c27; --line:#232a39; --text:#e8ecf4; --muted:#8b95a9;
+  --a1:#7c5cff; --a2:#1fd1a8; --warn:#ffb547; --bad:#ff5d73;
+  --grad:linear-gradient(120deg,var(--a1),var(--a2));
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;line-height:1.6}
+body{min-height:100vh;background:
+  radial-gradient(900px 500px at 85% -10%,rgba(124,92,255,.18),transparent 60%),
+  radial-gradient(800px 500px at 0% 10%,rgba(31,209,168,.10),transparent 60%),var(--bg)}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{width:46px;height:46px;border-radius:14px;background:var(--grad);display:grid;place-items:center;box-shadow:0 8px 30px rgba(124,92,255,.35)}
+.logo svg{width:26px;height:26px}
+h1{font-size:26px;margin:0;font-weight:700;letter-spacing:-.2px}
+h1 small{display:block;font-size:13.5px;color:var(--muted);font-weight:500}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-inline-start:auto;align-items:center}
+.install{padding:7px 14px;font-size:13.5px;border-radius:999px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;z-index:20;padding:20px}
+.modal .card{max-width:440px;font-size:14.5px}
+.modal ol{padding-inline-start:20px;margin:8px 0}
+.badge{font-size:12.5px;padding:5px 11px;border:1px solid var(--line);border-radius:999px;color:#cfd6e4;background:rgba(255,255,255,.02)}
+.badge b{color:var(--a2);font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}
+.drop{display:block;margin-top:26px;border:1.5px dashed #34405a;border-radius:22px;padding:54px 20px;text-align:center;cursor:pointer;transition:.2s;background:rgba(18,22,31,.6)}
+.drop:hover,.drop.over{border-color:var(--a2);background:rgba(31,209,168,.06)}
+.drop .big{font-size:21px;font-weight:600;margin:10px 0 4px}
+.drop .sub{color:var(--muted);font-size:14px}
+.drop .icon{width:64px;height:64px;margin:0 auto;border-radius:20px;background:rgba(124,92,255,.14);display:grid;place-items:center}
+.btn{font-family:inherit;border:0;border-radius:12px;padding:11px 18px;font-size:15px;font-weight:600;cursor:pointer;color:#fff;background:var(--panel2);border:1px solid var(--line);transition:.15s;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:#3b4660}
+.btn.primary{background:var(--grad);border:0;box-shadow:0 8px 24px rgba(124,92,255,.3)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:18px;margin-top:22px}
+@media (max-width:880px){.grid{grid-template-columns:1fr}}
+.file{display:flex;gap:12px;align-items:center}
+.file .ic{width:42px;height:42px;border-radius:12px;background:rgba(31,209,168,.12);display:grid;place-items:center;flex:none}
+.file .nm{font-weight:600;word-break:break-all;font-size:14.5px}
+.file .meta{color:var(--muted);font-size:12.5px}
+h3{font-size:14px;color:var(--muted);font-weight:600;margin:18px 0 10px;text-transform:uppercase;letter-spacing:.3px}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.preset{font-family:inherit;text-align:start;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:9px 11px;cursor:pointer;font-size:13.5px;font-weight:600}
+.preset span{display:block;color:var(--muted);font-weight:400;font-size:11.5px}
+.preset.on{border-color:var(--a1);background:rgba(124,92,255,.12)}
+.ctrl{margin:12px 0}
+.ctrl .row{display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.ctrl .val{color:var(--a2);font-weight:600;font-size:13px;direction:ltr}
+input[type=range]{width:100%;accent-color:var(--a1);margin-top:6px}
+select{font-family:inherit;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:13.5px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;font-size:14px;border-top:1px solid rgba(255,255,255,.04)}
+.sw small{display:block;color:var(--muted);font-size:11.5px}
+.tg{position:relative;width:42px;height:24px;flex:none}
+.tg input{opacity:0;width:0;height:0}
+.tg i{position:absolute;inset:0;background:#2a3245;border-radius:99px;transition:.2s;cursor:pointer}
+.tg i:before{content:"";position:absolute;width:18px;height:18px;top:3px;right:3px;background:#fff;border-radius:50%;transition:.2s}
+.tg input:checked+i{background:var(--a1)}
+.tg input:checked+i:before{transform:translateX(-18px)}
+.prog{margin-top:14px}
+.bar{height:8px;background:#1d2331;border-radius:99px;overflow:hidden}
+.bar>div{height:100%;width:0;background:var(--grad);transition:width .2s}
+.step{font-size:13px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between}
+.stage{position:relative}
+video{width:100%;max-height:360px;background:#000;border-radius:14px;display:block;margin-bottom:14px}
+.wave{position:relative;border-radius:12px;overflow:hidden;background:#0e1219;border:1px solid var(--line);margin-bottom:10px;cursor:pointer}
+.wave canvas{width:100%;height:84px;display:block}
+.wave .lbl{position:absolute;top:6px;inset-inline-end:10px;font-size:11.5px;color:var(--muted);background:rgba(10,12,17,.7);padding:1px 8px;border-radius:6px}
+.transport{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px}
+.play{width:52px;height:52px;border-radius:50%;padding:0;justify-content:center}
+.time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;direction:ltr}
+.ab{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:4px;margin-inline-start:auto}
+.ab button{font-family:inherit;border:0;background:none;color:var(--muted);padding:8px 16px;border-radius:9px;cursor:pointer;font-weight:600;font-size:14px}
+.ab button.on{background:var(--grad);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat .k{font-size:12px;color:var(--muted)}
+.stat .v{font-size:15px;font-weight:600}
+.stat .v em{font-style:normal;color:var(--a2)}
+.exports{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.note{font-size:12.5px;color:var(--muted);margin-top:10px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1b2130;border:1px solid var(--line);padding:11px 18px;border-radius:12px;font-size:14px;z-index:9;box-shadow:0 10px 40px rgba(0,0,0,.5);max-width:90vw}
+.toast.err{border-color:var(--bad)}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:34px}
+.feat .card{padding:16px}
+.feat b{display:block;margin-bottom:3px}
+.feat p{margin:0;color:var(--muted);font-size:13.5px}
+.engine{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.dot.ok{background:var(--a2)}
+.empty{color:var(--muted);text-align:center;padding:60px 10px;font-size:14px}
+.tabs{display:flex;gap:6px;margin-top:22px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:5px;width:max-content}
+.tabs button{font-family:inherit;border:0;background:none;color:var(--muted);padding:9px 18px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14.5px}
+.tabs button.on{background:var(--panel2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
+.tabs .cnt{display:inline-block;min-width:20px;padding:0 6px;margin-inline-start:6px;border-radius:99px;background:rgba(124,92,255,.2);color:#c9bcff;font-size:12px}
+.hfilters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{font-family:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:7px 14px;cursor:pointer;font-size:13.5px;font-weight:600}
+.chip.on{border-color:var(--a1);color:var(--text);background:rgba(124,92,255,.14)}
+.hsum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:16px 0}
+.hsum .stat .v{font-size:22px}
+.hlist{display:flex;flex-direction:column;gap:8px}
+.hday{font-size:13px;color:var(--muted);font-weight:600;margin:14px 0 2px}
+.hitem{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.hitem .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:rgba(31,209,168,.1);font-size:18px}
+.hitem .nm{font-weight:600;font-size:14px;word-break:break-all}
+.hitem .mt{font-size:12px;color:var(--muted)}
+.hitem .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tag{font-size:11.5px;padding:1px 8px;border-radius:6px;background:rgba(255,255,255,.05);color:#cdd5e3}
+.tag.g{background:rgba(31,209,168,.12);color:#7fe9cf}
+.hitem .tm{font-size:12.5px;color:var(--muted);text-align:end;direction:ltr}
+.del{font-family:inherit;background:none;border:0;color:#6b7690;cursor:pointer;font-size:13px;padding:2px 6px}
+.del:hover{color:var(--bad)}
+.sync{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.vs{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+.vs td,.vs th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:start}
+.vs th{color:var(--muted);font-weight:600}
+.vs .y{color:var(--a2)} .vs .n{color:#6b7690}
+footer{margin-top:30px;color:#5d6880;font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M3 12h2M7 8v8M11 5v14M15 8v8M19 10v4M21 12h0"/></svg></div>
+    <h1>صافي <small>تنقية الصوت والفيديو بالذكاء الاصطناعي — مجاناً</small></h1>
+    <div class="badges">
+      <span class="badge"><b>●</b> مجاني بالكامل</span>
+      <span class="badge"><b>●</b> ملفاتك لا تُرفع لأي سيرفر</span>
+      <span class="badge"><b>●</b> صوت + فيديو</span>
+      <span class="badge"><b>●</b> بدون حد للمدة</span>
+      <button class="btn primary install hidden" id="installBtn">⬇️ ثبّت البرنامج</button>
+    </div>
+  </header>
+
+  <nav class="tabs"><button id="tabTool" class="on">🎚️ الأداة</button><button id="tabHist">🗂️ السجل <span class="cnt" id="histCnt">0</span></button></nav>
+
+  <div id="viewTool">
+  <label id="drop" class="drop">
+    <input id="fileIn" type="file" accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.opus,.flac,.mp4,.mov,.webm,.mkv" hidden>
+    <div class="icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#a996ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div>
+    <div class="big">اسحب ملف صوت أو فيديو هنا</div>
+    <div class="sub">أو اضغط للاختيار — MP3، WAV، M4A، MP4، MOV، WEBM وغيرها</div>
+  </label>
+
+  <section id="work" class="grid hidden">
+    <aside class="card">
+      <div class="file">
+        <div class="ic" id="fileIcon"></div>
+        <div><div class="nm" id="fName"></div><div class="meta" id="fMeta"></div></div>
+      </div>
+      <div class="engine"><span class="dot" id="engDot"></span><span id="engTxt">جاري تحميل محرك الذكاء الاصطناعي…</span></div>
+
+      <h3>الإعداد السريع</h3>
+      <div class="presets" id="presets">
+        <button class="preset on" data-p="studio">🎙️ بودكاست<span>صوت استوديو دافئ</span></button>
+        <button class="preset" data-p="social">📱 فيديو سوشيال<span>صوت عالي وواضح</span></button>
+        <button class="preset" data-p="noisy">🚗 مكان صاخب<span>شارع، مطعم، تكييف</span></button>
+        <button class="preset" data-p="light">🌿 خفيف وطبيعي<span>تنظيف بدون مبالغة</span></button>
+      </div>
+
+      <h3>التحكم</h3>
+      <div class="sw" style="border-top:0"><div>محرك الذكاء الاصطناعي<small id="engHint">DeepFilterNet3 — أعلى جودة</small></div>
+        <select id="eng"><option value="df">متقدم (أعلى جودة)</option><option value="rn">سريع</option></select></div>
+      <div class="ctrl"><div class="row"><span>قوة إزالة الضوضاء</span><span class="val" id="vStr"></span></div><input type="range" id="str" min="0" max="100"></div>
+      <div class="ctrl"><div class="row"><span>الضغط الديناميكي (ثبات الصوت)</span><span class="val" id="vCmp"></span></div><input type="range" id="cmp" min="0" max="100"></div>
+      <div class="sw"><div>تنظيف الفواصل بين الجمل<small>يمسح النَّفَس والضوضاء في لحظات السكوت</small></div><label class="tg"><input type="checkbox" id="gate"><i></i></label></div>
+      <div class="sw"><div>تنقية عميقة إضافية<small>طبقة ثانية للضوضاء الثابتة العنيدة</small></div><label class="tg"><input type="checkbox" id="deep"><i></i></label></div>
+      <div class="sw"><div>تحسين نبرة الصوت<small>دفء + وضوح + حضور (EQ)</small></div><label class="tg"><input type="checkbox" id="eq"><i></i></label></div>
+      <div class="sw"><div>تخفيف حدة السين والشين<small>De-esser</small></div><label class="tg"><input type="checkbox" id="dess"><i></i></label></div>
+      <div class="sw"><div>إزالة الطنين الكهربائي</div>
+        <select id="hum"><option value="auto">تلقائي</option><option value="0">بدون</option><option value="50">50 هرتز</option><option value="60">60 هرتز</option></select></div>
+      <div class="sw"><div>مستوى الصوت النهائي</div>
+        <select id="lufs"><option value="-14">سوشيال (‎-14 LUFS)</option><option value="-16">بودكاست (‎-16 LUFS)</option><option value="-19">هادئ (‎-19 LUFS)</option><option value="off">بدون تعديل</option></select></div>
+
+      <button class="btn primary" id="go" style="width:100%;justify-content:center;margin-top:14px">✨ نقِّ الصوت</button>
+      <div class="prog hidden" id="prog"><div class="bar"><div id="barIn"></div></div><div class="step"><span id="stepTxt"></span><span id="pct" dir="ltr"></span></div></div>
+    </aside>
+
+    <main class="card stage">
+      <video id="vid" class="hidden" playsinline muted></video>
+      <div id="emptyMsg" class="empty">اضبط الإعدادات واضغط «نقِّ الصوت» — النتيجة هتظهر هنا مع مقارنة قبل وبعد.</div>
+      <div id="result" class="hidden">
+        <div class="wave" id="wA"><canvas id="cA"></canvas><span class="lbl">قبل</span></div>
+        <div class="wave" id="wB"><canvas id="cB"></canvas><span class="lbl">بعد</span></div>
+        <div class="transport">
+          <button class="btn primary play" id="playBtn" aria-label="تشغيل"></button>
+          <span class="time" id="tm">0:00 / 0:00</span>
+          <div class="ab"><button id="abA">الأصلي</button><button id="abB" class="on">بعد التنقية</button></div>
+        </div>
+        <div class="note">بدّل بين «الأصلي» و«بعد التنقية» أثناء التشغيل للمقارنة الفورية. اضغط على الموجة للانتقال لأي لحظة.</div>
+        <div class="stats" id="stats"></div>
+        <h3>التصدير</h3>
+        <div class="exports" id="exports"></div>
+        <div class="prog hidden" id="eprog"><div class="bar"><div id="ebarIn"></div></div><div class="step"><span id="estepTxt"></span><span id="epct" dir="ltr"></span></div></div>
+        <div class="note" id="expNote"></div>
+      </div>
+    </main>
+  </section>
+
+  </div>
+
+  <section id="viewHist" class="hidden" style="margin-top:20px">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="hfilters" id="hf">
+          <button class="chip on" data-r="today">اليوم</button>
+          <button class="chip" data-r="week">آخر 7 أيام</button>
+          <button class="chip" data-r="month">هذا الشهر</button>
+          <button class="chip" data-r="all">الكل</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="sync"><span class="dot" id="hDot"></span><span id="hSync">…</span></span>
+          <button class="btn" id="hCsv">⬇️ تصدير السجل (CSV)</button>
+        </div>
+      </div>
+      <div class="hsum" id="hSum"></div>
+      <div class="hlist" id="hList"></div>
+    </div>
+  </section>
+
+  <section class="feat">
+    <div class="card"><b>🧠 ذكاء اصطناعي حقيقي</b><p>نموذج DeepFilterNet3 — من أقوى نماذج تنقية الكلام المفتوحة — يشتغل جوه متصفحك، ومعاه محرك سريع احتياطي.</p></div>
+    <div class="card"><b>🔒 خصوصية كاملة</b><p>الملف ما بيتحركش من جهازك. لا رفع، لا تسجيل دخول، لا حدود يومية.</p></div>
+    <div class="card"><b>🎬 فيديو كامل</b><p>بيرجّع لك الفيديو نفسه بنفس الجودة (بدون إعادة ضغط للصورة) بالصوت النقي.</p></div>
+    <div class="card"><b>🎚️ تحكم كامل</b><p>قوة التنقية، الطنين، السين، الضغط، ومستوى الصوت القياسي للمنصات (LUFS).</p></div>
+  </section>
+  <details class="card" style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">صافي مقارنةً بـ Adobe Podcast — بصراحة</summary>
+    <table class="vs">
+      <tr><th></th><th>صافي</th><th>Adobe Podcast</th></tr>
+      <tr><td>السعر</td><td class="y">مجاني بالكامل</td><td>مجاني بحدود، والكامل باشتراك</td></tr>
+      <tr><td>رفع الملف لسيرفر</td><td class="y">لا — كله على جهازك</td><td>نعم</td></tr>
+      <tr><td>الفيديو</td><td class="y">يرجّع الفيديو كامل بنفس جودة الصورة</td><td>صوت فقط في الأداة المجانية</td></tr>
+      <tr><td>التحكم</td><td class="y">قوة، طنين، سين، ضغط، LUFS، فواصل</td><td>شريط قوة واحد</td></tr>
+      <tr><td>سجل الشغل</td><td class="y">سجل يومي وشهري</td><td>—</td></tr>
+      <tr><td>إزالة الصدى الشديد وإعادة بناء الصوت</td><td class="n">جزئياً</td><td class="y">أقوى (نموذج توليدي ضخم على سيرفراتهم)</td></tr>
+    </table>
+  </details>
+  <div id="instModal" class="modal hidden"><div class="card">
+    <b style="font-size:16px">تثبيت «صافي» على جهازك</b>
+    <div id="instBody"></div>
+    <button class="btn" id="instClose" style="margin-top:10px">تمام</button>
+  </div></div>
+  <footer>صافي — أداة مجانية، تشتغل على الويب وكبرنامج على الماك والويندوز. المعالجة كلها محلية على جهازك؛ للفيديوهات الطويلة جداً يُفضَّل استخدام كمبيوتر.</footer>
+</div>
+
+<script type="module">
+const SR = 48000;
+const RNNOISE_URL = window.RNNOISE_URL || 'https://cdn.jsdelivr.net/npm/@shiguredo/rnnoise-wasm@2025.1.5/dist/rnnoise.js';
+const MB_URL = window.MB_URL || 'https://cdn.jsdelivr.net/npm/mediabunny@1.65.0/dist/bundles/mediabunny.min.mjs';
+const RN_DELAY = window.RN_DELAY ?? 960;
+const $ = s => document.querySelector(s);
+const sleep0 = () => new Promise(r => setTimeout(r, 0));
+const dB = v => 20 * Math.log10(Math.max(v, 1e-9));
+const fmtT = s => { s = Math.max(0, s); const m = Math.floor(s / 60), x = Math.floor(s % 60); return `${m}:${String(x).padStart(2, '0')}`; };
+
+/* ---------------- engines ---------------- */
+let RN = null, MB = null;
+const rnReady = (async () => {
+  try { const m = await import(RNNOISE_URL); RN = await m.Rnnoise.load(); setEngine(true); }
+  catch (e) { console.warn('RNNoise failed', e); setEngine(false); }
+})();
+function setEngine() { try { updEngine(); } catch (e) {} }
+let DF = null, dfState = 'idle', dfPromise = null;
+const DF_JS = window.DF_JS || new URL('./dfnet.js', location.href).href;
+const DF_BIN = window.DF_BIN || new URL('./dfnet-gz.wasm', location.href).href;
+function loadDF() {
+  if (dfPromise) return dfPromise;
+  dfState = 'loading'; updEngine();
+  dfPromise = (async () => {
+    try {
+      const m = await import(DF_JS);
+      const r = await fetch(DF_BIN); if (!r.ok) throw new Error('fetch ' + r.status);
+      let buf = new Uint8Array(await r.arrayBuffer());
+      if (buf[0] === 0x1f && buf[1] === 0x8b) buf = new Uint8Array(await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
+      const mod = await WebAssembly.compile(buf);
+      await m.initDF({ module_or_path: mod });
+      DF = m; dfState = 'ready';
+    } catch (e) { console.warn('DeepFilterNet failed', e); DF = null; dfState = 'failed'; }
+    updEngine(); return DF;
+  })();
+  return dfPromise;
+}
+function updEngine() {
+  const want = $('#eng').value;
+  let ok, txt;
+  if (want === 'df' && dfState === 'ready') { ok = true; txt = 'المحرك المتقدم DeepFilterNet3 جاهز'; }
+  else if (want === 'df' && dfState === 'loading') { ok = false; txt = 'جاري تحميل المحرك المتقدم (12 ميجا — مرة واحدة)…'; }
+  else if (want === 'df' && dfState === 'failed') { ok = !!RN; txt = RN ? 'تعذّر تحميل المتقدم — هيتم استخدام السريع' : 'المحرك الاحتياطي (طيفي) شغّال'; }
+  else if (RN) { ok = true; txt = 'المحرك السريع RNNoise جاهز'; }
+  else { ok = false; txt = 'جاري تحميل المحرك…'; }
+  $('#engDot').classList.toggle('ok', ok); $('#engTxt').textContent = txt;
+  $('#engHint').textContent = want === 'df' ? 'DeepFilterNet3 — أعلى جودة' : 'RNNoise — أسرع بكتير';
+}
+loadDF();
+async function getMB() { if (!MB) MB = await import(MB_URL); return MB; }
+
+let DL = null;
+(async () => { try { if (window.claude && window.claude.use) DL = await window.claude.use('downloads'); } catch (e) {} })();
+
+/* ---------------- UI state ---------------- */
+const PRESETS = {
+  studio: { str: 85, cmp: 55, gate: true, deep: false, eq: true, dess: true, lufs: '-16' },
+  social: { str: 90, cmp: 70, gate: true, deep: false, eq: true, dess: true, lufs: '-14' },
+  noisy:  { str: 100, cmp: 60, gate: true, deep: true, eq: true, dess: true, lufs: '-14' },
+  light:  { str: 60, cmp: 30, gate: false, deep: false, eq: false, dess: false, lufs: '-16' },
+};
+let curPreset = 'studio';
+function applyPreset(p) {
+  const v = PRESETS[p]; curPreset = p;
+  $('#str').value = v.str; $('#cmp').value = v.cmp; $('#gate').checked = v.gate; $('#deep').checked = v.deep;
+  $('#eq').checked = v.eq; $('#dess').checked = v.dess; $('#lufs').value = v.lufs;
+  document.querySelectorAll('.preset').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  syncVals();
+}
+function syncVals() { $('#vStr').textContent = $('#str').value + '%'; $('#vCmp').textContent = $('#cmp').value + '%'; }
+document.querySelectorAll('.preset').forEach(b => b.onclick = () => applyPreset(b.dataset.p));
+['str', 'cmp'].forEach(id => $('#' + id).addEventListener('input', () => { syncVals(); curPreset = 'custom'; document.querySelectorAll('.preset').forEach(b => b.classList.remove('on')); }));
+applyPreset('studio');
+$('#eng').addEventListener('change', () => { if ($('#eng').value === 'df') loadDF(); updEngine(); try { localStorage.setItem('safi-eng', $('#eng').value); } catch (e) {} });
+try { const e = localStorage.getItem('safi-eng'); if (e) $('#eng').value = e; } catch (e) {}
+
+function toast(msg, err = false, ms = 4200) {
+  const t = document.createElement('div'); t.className = 'toast' + (err ? ' err' : ''); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), ms);
+}
+function progress(which, frac, txt) {
+  const p = which === 'e' ? 'e' : '';
+  $('#' + p + 'prog').classList.remove('hidden');
+  $('#' + p + 'barIn').style.width = (frac * 100).toFixed(1) + '%';
+  $('#' + p + 'pct').textContent = Math.round(frac * 100) + '%';
+  if (txt) $('#' + p + 'stepTxt').textContent = txt;
+}
+
+const S = { file: null, isVideo: false, orig: null, origMono: null, proc: null, url: null, info: {} };
+
+/* ---------------- file loading ---------------- */
+const drop = $('#drop');
+['dragenter', 'dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', ev => { const f = ev.dataTransfer.files[0]; if (f) loadFile(f); });
+$('#fileIn').addEventListener('change', ev => { const f = ev.target.files[0]; if (f) loadFile(f); ev.target.value = ''; });
+
+async function loadFile(f) {
+  stopPlay();
+  S.file = f; S.proc = null; S.isVideo = /^video\//.test(f.type) || /\.(mp4|mov|webm|mkv|m4v)$/i.test(f.name);
+  $('#work').classList.remove('hidden'); $('#result').classList.add('hidden'); $('#emptyMsg').classList.remove('hidden');
+  $('#fName').textContent = f.name; $('#fMeta').textContent = 'جاري قراءة الملف…';
+  $('#fileIcon').innerHTML = S.isVideo ? '🎬' : '🎧';
+  if (S.url) URL.revokeObjectURL(S.url);
+  S.url = URL.createObjectURL(f);
+  const v = $('#vid');
+  if (S.isVideo) { v.src = S.url; v.classList.remove('hidden'); } else { v.removeAttribute('src'); v.classList.add('hidden'); }
+  $('#go').disabled = true;
+  try {
+    S.orig = await decodeFile(f);
+    const m = toMono(S.orig); S.origMono = m.x; S.info.monoNote = m.note;
+    $('#fMeta').textContent = `${fmtT(S.orig.duration)} · ${S.orig.numberOfChannels === 1 ? 'مونو' : 'ستيريو'} · ${(f.size / 1048576).toFixed(1)} ميجا`;
+    $('#go').disabled = false;
+    $('#work').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    console.error(e);
+    $('#fMeta').textContent = 'تعذّر قراءة الصوت من هذا الملف';
+    toast('الملف ده مفيهوش صوت أو صيغته غير مدعومة في المتصفح. جرّب MP4 أو MP3 أو WAV.', true);
+  }
+}
+
+async function decodeFile(f) {
+  const ab = await f.arrayBuffer();
+  try {
+    const oc = new OfflineAudioContext(1, 1, SR);
+    return await oc.decodeAudioData(ab);
+  } catch (e) {
+    const M = await getMB();
+    const input = new M.Input({ source: new M.BlobSource(f), formats: M.ALL_FORMATS });
+    const at = await input.getPrimaryAudioTrack();
+    if (!at) throw new Error('no audio');
+    const sink = new M.AudioBufferSink(at);
+    const parts = []; let len = 0, rate = 0, ch = 1;
+    for await (const w of sink.buffers()) { parts.push(w.buffer); len += w.buffer.length; rate = w.buffer.sampleRate; ch = Math.max(ch, w.buffer.numberOfChannels); }
+    const oc = new OfflineAudioContext(ch, Math.ceil(len * SR / rate), SR);
+    const big = oc.createBuffer(ch, len, rate);
+    let o = 0; for (const b of parts) { for (let c = 0; c < ch; c++) big.getChannelData(c).set(b.getChannelData(Math.min(c, b.numberOfChannels - 1)), o); o += b.length; }
+    const s = oc.createBufferSource(); s.buffer = big; s.connect(oc.destination); s.start();
+    return await oc.startRendering();
+  }
+}
+
+function rmsOf(x) { let s = 0; for (let i = 0; i < x.length; i += 4) s += x[i] * x[i]; return Math.sqrt(s / (x.length / 4)); }
+function toMono(buf) {
+  const n = buf.numberOfChannels;
+  if (n === 1) return { x: buf.getChannelData(0).slice(), note: '' };
+  const chs = []; for (let i = 0; i < n; i++) chs.push(buf.getChannelData(i));
+  const r = chs.map(rmsOf), mx = Math.max(...r);
+  const act = chs.filter((c, i) => r[i] > mx * 0.2);
+  const x = new Float32Array(buf.length);
+  for (const c of act) for (let i = 0; i < x.length; i++) x[i] += c[i] / act.length;
+  return { x, note: act.length < n ? 'الصوت كان في سماعة واحدة — تم توزيعه على الجهتين' : '' };
+}
+
+/* ---------------- DSP helpers ---------------- */
+async function renderChain(x, build) {
+  const oc = new OfflineAudioContext(1, x.length, SR);
+  const b = oc.createBuffer(1, x.length, SR); b.copyToChannel(x, 0);
+  const s = oc.createBufferSource(); s.buffer = b;
+  let last = s;
+  for (const node of build(oc)) { last.connect(node); last = node; }
+  last.connect(oc.destination); s.start();
+  return (await oc.startRendering()).getChannelData(0);
+}
+function bq(oc, type, f, Q = 0.707, g = 0) { const n = oc.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = Q; n.gain.value = g; return n; }
+
+function goertzelPow(x, f, start, N) {
+  const w = 2 * Math.PI * f / SR, c = 2 * Math.cos(w); let s1 = 0, s2 = 0;
+  for (let i = 0; i < N; i++) { const s = x[start + i] + c * s1 - s2; s2 = s1; s1 = s; }
+  return s1 * s1 + s2 * s2 - c * s1 * s2;
+}
+function detectHum(x) {
+  const N = SR, blocks = Math.min(20, Math.floor(x.length / N));
+  if (blocks < 1) return 0;
+  const score = {};
+  for (const base of [50, 60]) {
+    let sc = 0;
+    for (const h of [1, 2, 3]) {
+      let p = 0, q = 0;
+      for (let b = 0; b < blocks; b++) {
+        const st = Math.floor(b * (x.length - N) / Math.max(1, blocks - 1 || 1));
+        p += goertzelPow(x, base * h, st, N);
+        q += (goertzelPow(x, base * h - 7, st, N) + goertzelPow(x, base * h + 7, st, N)) / 2;
+      }
+      sc = Math.max(sc, 10 * Math.log10((p + 1e-12) / (q + 1e-12)));
+    }
+    score[base] = sc;
+  }
+  const best = score[60] >= score[50] ? 60 : 50;
+  return score[best] > 12 ? best : 0;
+}
+
+function percentile(arr, p) { const a = Float32Array.from(arr).sort(); return a[Math.min(a.length - 1, Math.floor(a.length * p))]; }
+function frameDb(x, F = 2400) {
+  const n = Math.floor(x.length / F), out = new Float32Array(Math.max(1, n));
+  for (let k = 0; k < n; k++) { let s = 0; for (let i = k * F; i < (k + 1) * F; i++) s += x[i] * x[i]; out[k] = 10 * Math.log10(s / F + 1e-12); }
+  return out;
+}
+const noiseFloor = x => Math.max(-96, percentile(frameDb(x), 0.1));
+
+/* RNNoise AI denoise */
+async function rnDenoise(x, onP) {
+  const st = RN.createDenoiseState(), F = 480, n = x.length;
+  const total = n + 2 * F, out = new Float32Array(total + F);
+  const nf = Math.ceil(total / F), vad = new Float32Array(nf);
+  const fr = new Float32Array(F);
+  for (let k = 0; k < nf; k++) {
+    const i = k * F; fr.fill(0);
+    if (i < n) fr.set(x.subarray(i, Math.min(n, i + F)));
+    for (let j = 0; j < F; j++) fr[j] *= 32768;
+    vad[k] = st.processFrame(fr);
+    for (let j = 0; j < F; j++) out[i + j] = fr[j] / 32768;
+    if (k % 1500 === 0) { onP(k / nf); await sleep0(); }
+  }
+  st.destroy();
+  const y = out.slice(RN_DELAY, RN_DELAY + n);
+  return { y, vad };
+}
+
+async function dfDenoise(x, s, deep, onP) {
+  const lim = s >= 0.999 ? 100 : 8 + 72 * Math.pow(s, 1.3);
+  const h = DF.df_create_default(lim);
+  try {
+    DF.df_set_post_filter_beta(h, deep ? 0.03 : 0);
+    const F = DF.df_get_frame_length(h), D = window.DF_DELAY ?? 1440, n = x.length;
+    const nf = Math.ceil((n + D) / F) + 1, out = new Float32Array(nf * F), fr = new Float32Array(F);
+    const t0 = performance.now();
+    for (let k = 0; k < nf; k++) {
+      const i = k * F; fr.fill(0);
+      if (i < n) fr.set(x.subarray(i, Math.min(n, i + F)));
+      out.set(DF.df_process_frame(h, fr), i);
+      if (k % 200 === 0) {
+        const el = (performance.now() - t0) / 1000, f = k / nf, eta = f > 0.02 ? el / f - el : 0;
+        onP(f, eta > 3 ? `إزالة الضوضاء بالذكاء الاصطناعي المتقدم… (متبقي ~${eta < 60 ? Math.round(eta) + ' ث' : Math.round(eta / 60) + ' د'})` : 'إزالة الضوضاء بالذكاء الاصطناعي المتقدم…');
+        await sleep0();
+      }
+    }
+    return out.slice(D, D + n);
+  } finally { DF.df_free(h); }
+}
+
+function cleanVad(y) {
+  const F = 480, n = Math.ceil(y.length / F), db = new Float32Array(n);
+  for (let k = 0; k < n; k++) { let s = 0, c = 0; for (let i = k * F; i < Math.min(y.length, (k + 1) * F); i++) { s += y[i] * y[i]; c++; } db[k] = 10 * Math.log10(s / Math.max(1, c) + 1e-12); }
+  const sp = percentile(db, 0.9), v = new Float32Array(n);
+  for (let k = 0; k < n; k++) v[k] = Math.min(1, Math.max(0, (db[k] - (sp - 38)) / 8));
+  return v;
+}
+
+function energyVad(x) {
+  const F = 480, n = Math.ceil(x.length / F), db = new Float32Array(n);
+  for (let k = 0; k < n; k++) { let s = 0, c = 0; for (let i = k * F; i < Math.min(x.length, (k + 1) * F); i++) { s += x[i] * x[i]; c++; } db[k] = 10 * Math.log10(s / Math.max(1, c) + 1e-12); }
+  const fl = percentile(db, 0.1); const v = new Float32Array(n);
+  for (let k = 0; k < n; k++) v[k] = Math.min(1, Math.max(0, (db[k] - fl - 6) / 10));
+  return v;
+}
+
+function applyGate(y, vad, depthDb) {
+  const F = 480, n = vad.length, g = new Float32Array(n + 1);
+  const floor = Math.pow(10, -depthDb / 20), rel = Math.pow(10, -1.2 / 20);
+  let prev = floor;
+  for (let k = 0; k < n; k++) {
+    let open = 0; for (let j = k - 14; j <= k + 4; j++) if (j >= 0 && j < n) open = Math.max(open, vad[j]);
+    const t = open > 0.35 ? 1 : floor;
+    prev = t >= prev ? Math.min(t, prev + (1 - floor) * 0.5) : Math.max(t, prev * rel);
+    g[k] = prev;
+  }
+  g[n] = g[n - 1];
+  for (let i = 0; i < y.length; i++) { const k = Math.floor(i / F), f = (i % F) / F; y[i] *= g[k] + (g[k + 1] - g[k]) * f; }
+}
+
+/* FFT */
+function makeFFT(N) {
+  const lev = Math.log2(N), rev = new Uint32Array(N), cos = new Float64Array(N / 2), sin = new Float64Array(N / 2);
+  for (let i = 0; i < N; i++) { let r = 0; for (let b = 0; b < lev; b++) r |= ((i >> b) & 1) << (lev - 1 - b); rev[i] = r; }
+  for (let i = 0; i < N / 2; i++) { cos[i] = Math.cos(2 * Math.PI * i / N); sin[i] = Math.sin(2 * Math.PI * i / N); }
+  return (re, im, inv) => {
+    for (let i = 0; i < N; i++) { const j = rev[i]; if (j > i) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for (let size = 2; size <= N; size <<= 1) {
+      const half = size >> 1, step = N / size;
+      for (let i = 0; i < N; i += size) for (let j = 0, k = 0; j < half; j++, k += step) {
+        const tr = re[i + j + half] * cos[k] + (inv ? -1 : 1) * im[i + j + half] * sin[k];
+        const ti = -(inv ? -1 : 1) * re[i + j + half] * sin[k] + im[i + j + half] * cos[k];
+        re[i + j + half] = re[i + j] - tr; im[i + j + half] = im[i + j] - ti; re[i + j] += tr; im[i + j] += ti;
+      }
+    }
+  };
+}
+
+async function spectralDenoise(x, s, onP) {
+  const N = 1024, H = 256, B = N / 2 + 1, fft = makeFFT(N);
+  const win = new Float64Array(N); for (let i = 0; i < N; i++) win[i] = Math.sqrt(0.5 - 0.5 * Math.cos(2 * Math.PI * i / N));
+  const pad = new Float32Array(x.length + 2 * N); pad.set(x, N);
+  const nfr = Math.floor((pad.length - N) / H) + 1;
+  const re = new Float64Array(N), im = new Float64Array(N);
+  // noise profile from sampled frames
+  const samp = Math.min(nfr, 1500), pw = Array.from({ length: B }, () => new Float32Array(samp));
+  for (let t = 0; t < samp; t++) {
+    const o = Math.floor(t * (nfr - 1) / Math.max(1, samp - 1)) * H;
+    for (let i = 0; i < N; i++) { re[i] = pad[o + i] * win[i]; im[i] = 0; }
+    fft(re, im, false);
+    for (let k = 0; k < B; k++) pw[k][t] = re[k] * re[k] + im[k] * im[k];
+  }
+  const noise = new Float64Array(B); for (let k = 0; k < B; k++) noise[k] = percentile(pw[k], 0.2) * 1.6 + 1e-14;
+  const alpha = 1 + 3 * s, floor = Math.pow(10, -(6 + 24 * s) / 20);
+  const out = new Float32Array(pad.length), G = new Float64Array(B), Gp = new Float64Array(B).fill(1), Gs = new Float64Array(B);
+  for (let t = 0; t < nfr; t++) {
+    const o = t * H;
+    for (let i = 0; i < N; i++) { re[i] = pad[o + i] * win[i]; im[i] = 0; }
+    fft(re, im, false);
+    for (let k = 0; k < B; k++) { const p = re[k] * re[k] + im[k] * im[k]; G[k] = Math.max(floor, 1 - alpha * noise[k] / (p + 1e-14)); }
+    for (let k = 0; k < B; k++) { const sm = (G[Math.max(0, k - 1)] + 2 * G[k] + G[Math.min(B - 1, k + 1)]) / 4; Gs[k] = sm < Gp[k] ? 0.5 * Gp[k] + 0.5 * sm : sm; Gp[k] = Gs[k]; }
+    for (let k = 0; k < B; k++) { re[k] *= Gs[k]; im[k] *= Gs[k]; if (k > 0 && k < N / 2) { re[N - k] = re[k]; im[N - k] = -im[k]; } }
+    fft(re, im, true);
+    for (let i = 0; i < N; i++) out[o + i] += re[i] / N * win[i] * 0.5;
+    if (t % 3000 === 0) { onP(t / nfr); await sleep0(); }
+  }
+  return out.slice(N, N + x.length);
+}
+
+/* de-esser */
+async function deEss(x) {
+  const hb = await renderChain(x, oc => [bq(oc, 'highpass', 5500, 0.7)]);
+  const a = Math.exp(-1 / (0.003 * SR)), r = Math.exp(-1 / (0.06 * SR));
+  let es = 0, ef = 0, g = 1; const y = new Float32Array(x.length);
+  for (let i = 0; i < x.length; i++) {
+    const hs = Math.abs(hb[i]), fs = Math.abs(x[i]);
+    es = hs > es ? a * es + (1 - a) * hs : r * es + (1 - r) * hs;
+    ef = fs > ef ? a * ef + (1 - a) * fs : r * ef + (1 - r) * fs;
+    const ratio = es / (ef + 1e-9);
+    const tg = ratio > 0.4 && es > 0.01 ? Math.max(0.3, 0.4 / ratio) : 1;
+    g = tg < g ? 0.9 * g + 0.1 * tg : 0.998 * g + 0.002 * tg;
+    y[i] = x[i] - (1 - g) * hb[i];
+  }
+  return y;
+}
+
+/* loudness */
+async function lufs(x) {
+  const k = await renderChain(x, oc => [bq(oc, 'highshelf', 1500, 0.707, 4), bq(oc, 'highpass', 38, 0.5)]);
+  const B = Math.floor(0.4 * SR), H = Math.floor(0.1 * SR), ms = [];
+  for (let o = 0; o + B <= k.length; o += H) { let s = 0; for (let i = o; i < o + B; i += 2) s += k[i] * k[i]; ms.push(s / (B / 2)); }
+  if (!ms.length) return -70;
+  const L = m => -0.691 + 10 * Math.log10(m + 1e-12);
+  const a = ms.filter(m => L(m) > -70); if (!a.length) return -70;
+  const rel = L(a.reduce((p, c) => p + c, 0) / a.length) - 10;
+  const b = a.filter(m => L(m) > rel);
+  return L(b.reduce((p, c) => p + c, 0) / b.length);
+}
+
+function limiter(x, ceilDb = -1) {
+  const c = Math.pow(10, ceilDb / 20), L = 240, n = x.length;
+  const req = new Float32Array(n); for (let i = 0; i < n; i++) { const a = Math.abs(x[i]); req[i] = a > c ? c / a : 1; }
+  const g1 = new Float32Array(n), dq = new Int32Array(n + L); let h = 0, t = 0;
+  for (let i = n - 1; i >= 0; i--) { while (t > h && req[dq[t - 1]] >= req[i]) t--; dq[t++] = i; while (dq[h] > i + L) h++; g1[i] = req[dq[h]]; }
+  const rel = 1 - Math.exp(-1 / (0.08 * SR)); let sum = 0, prev = 1;
+  for (let i = 0; i < n; i++) {
+    sum += g1[i]; if (i >= L) sum -= g1[i - L];
+    const g2 = sum / Math.min(i + 1, L);
+    prev = Math.min(g2, prev + (1 - prev) * rel); x[i] *= prev;
+  }
+  return x;
+}
+
+/* ---------------- main processing ---------------- */
+$('#go').onclick = async () => {
+  if (!S.origMono) return;
+  stopPlay(); $('#go').disabled = true;
+  const t0 = performance.now();
+  try {
+    await runPipeline();
+    showResult(((performance.now() - t0) / 1000).toFixed(1));
+  } catch (e) { console.error(e); toast('حصل خطأ أثناء المعالجة: ' + e.message, true); }
+  $('#go').disabled = false;
+};
+
+async function runPipeline() {
+  const opt = { s: +$('#str').value / 100, c: +$('#cmp').value / 100, gate: $('#gate').checked, deep: $('#deep').checked, eq: $('#eq').checked, dess: $('#dess').checked, hum: $('#hum').value, lufs: $('#lufs').value };
+  const W = { pre: .05, rn: $('#eng').value === 'df' ? .7 : .45, deep: opt.deep ? .2 : 0, post: .1 }; const tot = W.pre + W.rn + W.deep + W.post;
+  let base = 0; const P = (w, f, txt) => progress('', (base + w * f) / tot, txt);
+  const x0 = S.origMono;
+  P(0, 0, 'تحليل الصوت…'); await sleep0();
+  const info = { nfBefore: noiseFloor(x0), lBefore: await lufs(x0) };
+  let hum = opt.hum === 'auto' ? detectHum(x0) : +opt.hum; info.hum = hum;
+  let x = await renderChain(x0, oc => {
+    const nodes = [bq(oc, 'highpass', 70, 0.707)];
+    if (hum) for (let h = 1; h <= 4; h++) nodes.push(bq(oc, 'notch', hum * h, 25));
+    return nodes;
+  });
+  base += W.pre;
+
+  await rnReady;
+  let y, vad, engine;
+  if ($('#eng').value === 'df') { P(W.rn, 0, 'تجهيز المحرك المتقدم…'); await loadDF(); }
+  if ($('#eng').value === 'df' && DF) {
+    engine = 'DeepFilterNet3';
+    y = opt.s <= 0.001 ? x.slice() : await dfDenoise(x, opt.s, opt.deep, (f, t) => P(W.rn + W.deep, f, t));
+    vad = cleanVad(y);
+    opt.pf = opt.deep; opt.deep = false;
+  } else if (RN) {
+    engine = 'RNNoise';
+    const r = await rnDenoise(x, f => P(W.rn, f, 'إزالة الضوضاء بالذكاء الاصطناعي…')); y = r.y; vad = r.vad;
+    const g = opt.s >= 0.999 ? 0 : Math.pow(10, -2 * opt.s);
+    for (let i = 0; i < y.length; i++) y[i] = y[i] * (1 - g) + x[i] * g;
+  } else {
+    engine = 'DSP';
+    y = await spectralDenoise(x, opt.s, f => P(W.rn, f, 'إزالة الضوضاء…')); vad = energyVad(x);
+  }
+  base += W.rn; if (engine === 'DeepFilterNet3') base += W.deep;
+  if (opt.deep) { y = await spectralDenoise(y, 0.45 + 0.4 * opt.s, f => P(W.deep, f, 'تنقية عميقة إضافية…')); base += W.deep; }
+  if (opt.gate) applyGate(y, vad, 14 + 16 * opt.s);
+
+  P(W.post, 0.1, 'تحسين النبرة والوضوح…'); await sleep0();
+  if (opt.dess) y = await deEss(y);
+  // pre-level to ~ -20 dBFS active RMS so the compressor behaves the same for any input
+  const fdb = frameDb(y); const act = percentile(fdb, 0.7);
+  const pre = Math.pow(10, (-20 - act) / 20); for (let i = 0; i < y.length; i++) y[i] *= pre;
+  y = await renderChain(y, oc => {
+    const n = [];
+    if (opt.eq) n.push(bq(oc, 'highpass', 85, 0.707), bq(oc, 'lowshelf', 160, 0.707, 1.5), bq(oc, 'peaking', 320, 1.0, -2.5), bq(oc, 'peaking', 3300, 0.8, 3), bq(oc, 'highshelf', 9500, 0.707, 2.5));
+    if (opt.c > 0) { const k = oc.createDynamicsCompressor(); k.threshold.value = -12 - 14 * opt.c; k.ratio.value = 1.5 + 3.5 * opt.c; k.knee.value = 8; k.attack.value = 0.004; k.release.value = 0.14; n.push(k); }
+    if (!n.length) n.push(oc.createGain());
+    return n;
+  });
+  if (opt.c > 0) { const D = Math.round(0.006 * SR); const z = new Float32Array(y.length); z.set(y.subarray(D)); y = z; } // compressor look-ahead compensation
+  P(W.post, 0.6, 'ضبط مستوى الصوت…'); await sleep0();
+  if (opt.lufs !== 'off') {
+    const l = await lufs(y); const gain = Math.pow(10, (+opt.lufs - l) / 20);
+    for (let i = 0; i < y.length; i++) y[i] *= gain;
+  } else {
+    let pk = 0; for (let i = 0; i < y.length; i++) pk = Math.max(pk, Math.abs(y[i]));
+    const tgt = Math.pow(10, -3 / 20); if (pk > 0) { const g = Math.min(tgt / pk, 1 / pre); for (let i = 0; i < y.length; i++) y[i] *= g; }
+  }
+  limiter(y, -1);
+  info.nfAfter = noiseFloor(y); info.lAfter = await lufs(y);
+  P(W.post, 1, 'تم ✓');
+
+  const ch = 2, out = new AudioBuffer({ length: y.length, numberOfChannels: ch, sampleRate: SR });
+  for (let c = 0; c < ch; c++) out.copyToChannel(y, c);
+  S.proc = out; Object.assign(S.info, info); S.info.engine = engine; S.info.opt = opt;
+}
+
+/* ---------------- results / player ---------------- */
+function showResult(secs) {
+  S.histId = addHistory(secs);
+  $('#emptyMsg').classList.add('hidden'); $('#result').classList.remove('hidden');
+  drawWaves();
+  const i = S.info;
+  const red = (i.nfBefore - i.nfAfter);
+  const st = [
+    ['الضوضاء في الخلفية', `<span dir="ltr">${i.nfBefore.toFixed(0)} dB → <em>${i.nfAfter.toFixed(0)} dB</em></span>`],
+    ['تقليل الضوضاء', `<em dir="ltr">${red > 0 ? '-' : ''}${Math.abs(red).toFixed(0)} dB</em>`],
+    ['مستوى الصوت', `<span dir="ltr">${i.lBefore.toFixed(1)} → <em>${i.lAfter.toFixed(1)} LUFS</em></span>`],
+    ['الطنين الكهربائي', i.hum ? `<em>تمت إزالة <bdi>${i.hum} Hz</bdi></em>` : 'غير موجود'],
+    ['وقت المعالجة', `<em>${secs} ث</em>`],
+    ['المحرك', `<em>${i.engine}</em>`],
+  ];
+  if (i.monoNote) st.push(['ملاحظة', `<em style="font-size:12px">${i.monoNote}</em>`]);
+  $('#stats').innerHTML = st.map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  buildExports(); setMode('after'); updTime();
+  $('#result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function drawWave(canvas, data, color, peakRef) {
+  const dpr = window.devicePixelRatio || 1, w = canvas.clientWidth * dpr, h = canvas.clientHeight * dpr;
+  canvas.width = w; canvas.height = h;
+  const g = canvas.getContext('2d'); g.clearRect(0, 0, w, h);
+  const step = Math.max(1, Math.floor(data.length / w)), bw = Math.max(1, dpr);
+  g.fillStyle = color;
+  for (let x = 0; x < w; x += bw) {
+    const s = Math.floor(x / w * data.length); let mx = 0;
+    for (let i = s; i < Math.min(data.length, s + step * bw); i += 4) { const a = Math.abs(data[i]); if (a > mx) mx = a; }
+    const hh = Math.max(1, Math.pow(mx / peakRef, 0.8) * h * 0.46);
+    g.fillRect(w - x - bw, h / 2 - hh, bw * 0.8, hh * 2);
+  }
+}
+let waveCache = null;
+function drawWaves() {
+  const a = S.origMono, b = S.proc.getChannelData(0);
+  drawWave($('#cA'), a, '#5a6580', 1); drawWave($('#cB'), b, '#2fd6b0', 1);
+  waveCache = null;
+}
+window.addEventListener('resize', () => { if (S.proc) drawWaves(); });
+
+const PL = { ctx: null, a: null, b: null, ga: null, gb: null, playing: false, t0: 0, off: 0, mode: 'after' };
+const playIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M7 4v16l13-8z"/></svg>';
+const pauseIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+$('#playBtn').innerHTML = playIcon;
+const dur = () => S.proc ? S.proc.duration : 0;
+const pos = () => PL.playing ? PL.off + PL.ctx.currentTime - PL.t0 : PL.off;
+function startPlay() {
+  if (!S.proc) return;
+  if (!PL.ctx) { PL.ctx = new AudioContext({ sampleRate: SR }); PL.ga = PL.ctx.createGain(); PL.gb = PL.ctx.createGain(); PL.ga.connect(PL.ctx.destination); PL.gb.connect(PL.ctx.destination); }
+  PL.ctx.resume();
+  if (PL.off >= dur() - 0.05) PL.off = 0;
+  PL.a = PL.ctx.createBufferSource(); PL.a.buffer = S.orig; PL.a.connect(PL.ga);
+  PL.b = PL.ctx.createBufferSource(); PL.b.buffer = S.proc; PL.b.connect(PL.gb);
+  setMode(PL.mode, true);
+  const when = PL.ctx.currentTime + 0.03;
+  PL.a.start(when, PL.off); PL.b.start(when, PL.off); PL.t0 = when; PL.playing = true;
+  if (S.isVideo) { const v = $('#vid'); v.currentTime = PL.off; v.play().catch(() => {}); }
+  $('#playBtn').innerHTML = pauseIcon; tick();
+}
+function stopPlay() {
+  if (!PL.playing) return;
+  PL.off = pos(); try { PL.a.stop(); PL.b.stop(); } catch (e) {}
+  PL.playing = false; $('#vid').pause(); $('#playBtn').innerHTML = playIcon;
+}
+function seek(t) { const was = PL.playing; stopPlay(); PL.off = Math.max(0, Math.min(dur(), t)); if (S.isVideo) $('#vid').currentTime = PL.off; updTime(); if (was) startPlay(); }
+function setMode(m, instant) {
+  PL.mode = m; $('#abA').classList.toggle('on', m === 'before'); $('#abB').classList.toggle('on', m === 'after');
+  if (!PL.ctx) return; const t = PL.ctx.currentTime;
+  PL.ga.gain.setTargetAtTime(m === 'before' ? 1 : 0, t, instant ? 0.001 : 0.012);
+  PL.gb.gain.setTargetAtTime(m === 'after' ? 1 : 0, t, instant ? 0.001 : 0.012);
+}
+$('#abA').onclick = () => setMode('before'); $('#abB').onclick = () => setMode('after');
+$('#playBtn').onclick = () => PL.playing ? stopPlay() : startPlay();
+document.addEventListener('keydown', e => { if (e.code === 'Space' && S.proc && !/INPUT|SELECT|BUTTON/.test(e.target.tagName)) { e.preventDefault(); PL.playing ? stopPlay() : startPlay(); } });
+['#wA', '#wB'].forEach(id => $(id).addEventListener('click', e => {
+  const r = e.currentTarget.getBoundingClientRect(); const f = (r.right - e.clientX) / r.width; seek(f * dur());
+  setMode(id === '#wA' ? 'before' : 'after');
+}));
+function updTime() {
+  const p = pos(), d = dur(); $('#tm').textContent = `${fmtT(p)} / ${fmtT(d)}`;
+  const f = d ? p / d : 0;
+  for (const id of ['#wA', '#wB']) {
+    let ph = $(id).querySelector('.ph');
+    if (!ph) { ph = document.createElement('div'); ph.className = 'ph'; ph.style.cssText = 'position:absolute;top:0;bottom:0;width:2px;background:#fff;opacity:.85;pointer-events:none'; $(id).appendChild(ph); }
+    ph.style.right = (f * 100) + '%';
+  }
+}
+function tick() {
+  if (!PL.playing) return;
+  updTime();
+  if (S.isVideo) { const v = $('#vid'); if (Math.abs(v.currentTime - pos()) > 0.15) v.currentTime = pos(); }
+  if (pos() >= dur()) { stopPlay(); PL.off = 0; updTime(); return; }
+  requestAnimationFrame(tick);
+}
+
+/* ---------------- export ---------------- */
+function baseName() { return S.file.name.replace(/\.[^.]+$/, '').replace(/[\\/:*?"<>|]+/g, '_') + '-safi'; }
+function buildExports() {
+  const ex = $('#exports'); ex.innerHTML = '';
+  const add = (label, fn, primary) => { const b = document.createElement('button'); b.className = 'btn' + (primary ? ' primary' : ''); b.innerHTML = label; b.onclick = async () => { document.querySelectorAll('#exports button').forEach(x => x.disabled = true); try { await fn(); } catch (e) { console.error(e); toast('تعذّر التصدير: ' + (e.message || e), true); } document.querySelectorAll('#exports button').forEach(x => x.disabled = false); }; ex.appendChild(b); };
+  if (S.isVideo) add('🎬 الفيديو بالصوت النقي', exportVideo, true);
+  add('🎧 الصوت فقط (MP4 / AAC)', exportAudio, !S.isVideo);
+  add('💎 WAV بجودة كاملة (ZIP)', exportWav);
+  $('#expNote').textContent = S.isVideo ? 'الفيديو بيتصدّر بنفس جودة الصورة الأصلية بالظبط (بدون إعادة ضغط)، والصوت النقي متزامن معاه. ملف WAV مناسب لو هتركّب الصوت في Premiere.' : 'ملف الـ MP4 الصوتي بيشتغل على أي موبايل وواتساب وكل المنصات. الـ WAV للمونتاج والجودة الكاملة.';
+}
+
+async function saveBlob(blob, filename) {
+  if (DL) {
+    try { await DL.save({ filename, data: blob }); toast('تم الحفظ ✓'); return true; }
+    catch (e) {
+      if (e && e.code === 'declined') return false;
+      if (e && e.code === 'too_large') { toast('الملف كبير جداً للحفظ هنا.', true); return false; }
+      if (e && e.code === 'rate_limited') { toast('فيه نافذة حفظ مفتوحة بالفعل — أكّدها أولاً.', true); return false; }
+    }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  return true;
+}
+
+function sliceBuffer(buf, from, to) {
+  const len = Math.max(0, to - from), b = new AudioBuffer({ length: Math.max(1, len), numberOfChannels: buf.numberOfChannels, sampleRate: buf.sampleRate });
+  for (let c = 0; c < buf.numberOfChannels; c++) b.copyToChannel(buf.getChannelData(c).subarray(from, to), c);
+  return b;
+}
+async function pickAudioCodec(M, fmt) {
+  const list = fmt.getSupportedAudioCodecs();
+  for (const c of ['aac', 'opus']) if (list.includes(c) && await M.canEncodeAudio(c, { numberOfChannels: 2, sampleRate: SR, bitrate: 192000 })) return c;
+  throw new Error('المتصفح لا يدعم ترميز الصوت — استخدم تصدير WAV');
+}
+
+async function exportAudio() {
+  const M = await getMB(); progress('e', 0, 'جاري ترميز الصوت…');
+  const fmt = new M.Mp4OutputFormat({ fastStart: 'in-memory' });
+  const codec = await pickAudioCodec(M, fmt);
+  const out = new M.Output({ format: fmt, target: new M.BufferTarget() });
+  const src = new M.AudioBufferSource({ codec, bitrate: 192000 }); out.addAudioTrack(src);
+  await out.start();
+  const L = S.proc.length, C = SR * 10;
+  for (let o = 0; o < L; o += C) { await src.add(sliceBuffer(S.proc, o, Math.min(L, o + C))); progress('e', o / L); }
+  await out.finalize(); progress('e', 1, 'جاهز ✓');
+  if (await saveBlob(new Blob([out.target.buffer], { type: 'video/mp4' }), baseName() + '-audio.mp4')) markExport('صوت MP4');
+}
+
+async function exportVideo() {
+  const M = await getMB(); progress('e', 0, 'تجهيز الفيديو…');
+  const input = new M.Input({ source: new M.BlobSource(S.file), formats: M.ALL_FORMATS });
+  const vt = await input.getPrimaryVideoTrack();
+  if (!vt) throw new Error('مفيش مسار فيديو في الملف');
+  const vcodec = vt.codec, cfg = await vt.getDecoderConfig();
+  const at = await input.getPrimaryAudioTrack();
+  const aStart = at ? Math.max(0, await at.getFirstTimestamp()) : 0;
+  let fmt = new M.Mp4OutputFormat({ fastStart: 'in-memory' }), ext = 'mp4';
+  if (!fmt.getSupportedVideoCodecs().includes(vcodec)) { fmt = new M.WebMOutputFormat(); ext = 'webm'; }
+  if (!fmt.getSupportedVideoCodecs().includes(vcodec)) throw new Error('صيغة الفيديو غير مدعومة للتصدير');
+  const acodec = await pickAudioCodec(M, fmt);
+  const out = new M.Output({ format: fmt, target: new M.BufferTarget() });
+  const vsrc = new M.EncodedVideoPacketSource(vcodec);
+  const meta = {}; try { if (vt.rotation) meta.rotation = vt.rotation; } catch (e) {}
+  out.addVideoTrack(vsrc, meta);
+  const asrc = new M.AudioBufferSource({ codec: acodec, bitrate: 192000 }, { startTimestamp: aStart });
+  out.addAudioTrack(asrc);
+  await out.start();
+  const total = await input.computeDuration(); const L = S.proc.length, C = SR; let aPos = 0;
+  const feedAudio = async upto => { while (aPos < L && aPos / SR + aStart < upto) { const e = Math.min(L, aPos + C); await asrc.add(sliceBuffer(S.proc, aPos, e)); aPos = e; } };
+  const sink = new M.EncodedPacketSink(vt); let first = true, n = 0;
+  for await (const p of sink.packets()) {
+    await feedAudio(p.timestamp + 1);
+    await vsrc.add(p, first ? { decoderConfig: cfg } : undefined); first = false;
+    if (++n % 60 === 0) progress('e', Math.min(0.98, p.timestamp / (total || 1)), 'دمج الصوت النقي مع الفيديو…');
+  }
+  await feedAudio(Infinity);
+  await out.finalize(); progress('e', 1, 'جاهز ✓');
+  if (await saveBlob(new Blob([out.target.buffer], { type: ext === 'mp4' ? 'video/mp4' : 'video/webm' }), baseName() + '.' + ext)) markExport('فيديو');
+}
+
+function wavBytes(buf) {
+  const ch = buf.numberOfChannels, n = buf.length, bps = 3, data = n * ch * bps;
+  const ab = new ArrayBuffer(44 + data), v = new DataView(ab);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + data, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+  v.setUint16(22, ch, true); v.setUint32(24, SR, true); v.setUint32(28, SR * ch * bps, true); v.setUint16(32, ch * bps, true); v.setUint16(34, 24, true);
+  w(36, 'data'); v.setUint32(40, data, true);
+  const cs = []; for (let c = 0; c < ch; c++) cs.push(buf.getChannelData(c));
+  let o = 44; const u = new Uint8Array(ab);
+  for (let i = 0; i < n; i++) for (let c = 0; c < ch; c++) {
+    let s = Math.max(-1, Math.min(1, cs[c][i])); let q = Math.round(s * 8388607); if (q < 0) q += 16777216;
+    u[o++] = q & 255; u[o++] = (q >> 8) & 255; u[o++] = (q >> 16) & 255;
+  }
+  return u;
+}
+const CRC = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i++) { let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[i] = c >>> 0; } return t; })();
+async function crc32(u) { let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) { c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); if (i % 8000000 === 0 && i) { progress('e', i / u.length); await sleep0(); } } return (c ^ 0xFFFFFFFF) >>> 0; }
+async function zipOne(name, data) {
+  const nm = new TextEncoder().encode(name), crc = await crc32(data);
+  const d = new Date(), dt = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate(), tm = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  const lh = new DataView(new ArrayBuffer(30)), ch = new DataView(new ArrayBuffer(46)), end = new DataView(new ArrayBuffer(22));
+  lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(10, tm, true); lh.setUint16(12, dt, true); lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, nm.length, true);
+  ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(12, tm, true); ch.setUint16(14, dt, true); ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, nm.length, true);
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, 1, true); end.setUint16(10, 1, true); end.setUint32(12, 46 + nm.length, true); end.setUint32(16, 30 + nm.length + data.length, true);
+  return new Blob([lh, nm, data, ch, nm, end], { type: 'application/zip' });
+}
+async function exportWav() {
+  progress('e', 0, 'تجهيز ملف WAV…'); await sleep0();
+  const u = wavBytes(S.proc);
+  const z = await zipOne(baseName() + '.wav', u);
+  progress('e', 1, 'جاهز ✓');
+  if (await saveBlob(z, baseName() + '-wav.zip')) markExport('WAV');
+}
+
+
+/* ---------------- history (السجل) ---------------- */
+const PRESET_AR = { studio: 'بودكاست', social: 'فيديو سوشيال', noisy: 'مكان صاخب', light: 'خفيف', custom: 'مخصص' };
+const H = { items: [], db: null, uid: null, mode: 'local', months: {}, chain: Promise.resolve(), range: 'today' };
+const monthKey = ts => { const d = new Date(ts); return `hist-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
+function loadLocal() { try { return JSON.parse(localStorage.getItem('safi-history') || '[]'); } catch (e) { return []; } }
+function saveLocal() { try { localStorage.setItem('safi-history', JSON.stringify(H.items.slice(-3000))); } catch (e) {} }
+function setSync(ok, txt) { $('#hDot').classList.toggle('ok', ok); $('#hSync').textContent = txt; }
+
+setTimeout(async () => {
+  H.items = loadLocal(); renderHistory();
+  setSync(false, 'محفوظ على هذا المتصفح فقط');
+  try {
+    if (!(window.claude && window.claude.use)) return;
+    const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+    if (!db || !user) return;
+    const uid = await user.id(); if (!uid) return;
+    H.db = db; H.uid = uid;
+    const timer = setTimeout(() => setSync(false, 'السجل السحابي لم يستجب بعد…'), 10000);
+    const snap = await db.collection('data/users/' + uid).get();
+    clearTimeout(timer);
+    const remote = [];
+    for (const d of snap.docs) if (d.id.startsWith('hist-')) { const b = d.data() || {}; H.months[d.id] = (b.items || []).slice(); remote.push(...H.months[d.id]); }
+    // merge local-only items (e.g. made before sync existed) into the cloud
+    const ids = new Set(remote.map(i => i.id)); const pending = H.items.filter(i => !ids.has(i.id));
+    H.items = remote.concat(pending).sort((a, b) => a.ts - b.ts); H.mode = 'cloud';
+    for (const it of pending) { const k = monthKey(it.ts); (H.months[k] = H.months[k] || []).push(it); }
+    const touched = new Set(pending.map(i => monthKey(i.ts))); for (const k of touched) queueWrite(k);
+    saveLocal(); renderHistory(); setSync(true, 'متزامن مع حسابك — يظهر على أي جهاز');
+  } catch (e) { console.warn('history sync', e); setSync(false, 'محفوظ على هذا المتصفح فقط'); }
+});
+
+function queueWrite(k) {
+  if (!H.db) return;
+  H.chain = H.chain.then(async () => {
+    try { await H.db.collection('data/users/' + H.uid).doc(k).set({ items: H.months[k] || [] }); }
+    catch (e) { console.warn('history write', e); if (e && e.code === 'quota_exceeded') toast('مساحة السجل امتلأت — احذف بعض العناصر القديمة.', true); }
+  });
+}
+function upsert(it) {
+  const i = H.items.findIndex(x => x.id === it.id); if (i >= 0) H.items[i] = it; else H.items.push(it);
+  saveLocal();
+  if (H.db) { const k = monthKey(it.ts), arr = (H.months[k] = H.months[k] || []); const j = arr.findIndex(x => x.id === it.id); if (j >= 0) arr[j] = it; else arr.push(it); queueWrite(k); }
+  renderHistory();
+}
+function addHistory(secs) {
+  const i = S.info, o = i.opt || {};
+  const it = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: Date.now(),
+    name: S.file.name, kind: S.isVideo ? 'video' : 'audio', dur: Math.round(S.orig.duration * 10) / 10, size: S.file.size,
+    preset: curPreset, engine: i.engine, str: Math.round(o.s * 100), hum: i.hum || 0,
+    nfB: Math.round(i.nfBefore), nfA: Math.round(i.nfAfter), lB: Math.round(i.lBefore * 10) / 10, lA: Math.round(i.lAfter * 10) / 10,
+    secs: +secs, exports: [],
+  };
+  upsert(it); return it.id;
+}
+function markExport(kind) {
+  const it = H.items.find(x => x.id === S.histId); if (!it) return;
+  const c = Object.assign({}, it, { exports: [...(it.exports || []), kind] }); upsert(c);
+}
+function deleteHist(id) {
+  const it = H.items.find(x => x.id === id); if (!it) return;
+  H.items = H.items.filter(x => x.id !== id); saveLocal();
+  if (H.db) { const k = monthKey(it.ts); H.months[k] = (H.months[k] || []).filter(x => x.id !== id); queueWrite(k); }
+  renderHistory();
+}
+function inRange(ts, r) {
+  const now = new Date(), d = new Date(ts);
+  if (r === 'today') return d.toDateString() === now.toDateString();
+  if (r === 'week') return now - d < 7 * 864e5;
+  if (r === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  return true;
+}
+const fmtDur = s => s >= 3600 ? `${Math.floor(s / 3600)} س ${Math.round(s % 3600 / 60)} د` : s >= 60 ? `${Math.floor(s / 60)} د ${Math.round(s % 60)} ث` : `${Math.round(s)} ث`;
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function renderHistory() {
+  const today = H.items.filter(i => inRange(i.ts, 'today')).length;
+  $('#histCnt').textContent = today;
+  const list = H.items.filter(i => inRange(i.ts, H.range)).sort((a, b) => b.ts - a.ts);
+  const tot = list.reduce((a, i) => a + (i.dur || 0), 0), vids = list.filter(i => i.kind === 'video').length;
+  const red = list.length ? list.reduce((a, i) => a + Math.max(0, i.nfB - i.nfA), 0) / list.length : 0;
+  const exps = list.reduce((a, i) => a + (i.exports || []).length, 0);
+  $('#hSum').innerHTML = [['الملفات', list.length], ['فيديو / صوت', `${vids} / ${list.length - vids}`], ['إجمالي المدة', fmtDur(tot)], ['متوسط تقليل الضوضاء', `<span dir="ltr">${Math.round(red)} dB</span>`], ['ملفات تم تصديرها', exps]]
+    .map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  if (!list.length) { $('#hList').innerHTML = `<div class="empty">مفيش ملفات في الفترة دي لسه. كل ملف بتنقّيه بيتسجّل هنا تلقائياً.</div>`; return; }
+  let html = '', lastDay = '';
+  for (const i of list) {
+    const d = new Date(i.ts), day = d.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    if (day !== lastDay) { html += `<div class="hday">${day}</div>`; lastDay = day; }
+    const tags = [`<span class="tag">${PRESET_AR[i.preset] || i.preset}</span>`, `<span class="tag">${esc(i.engine)}</span>`, `<span class="tag">قوة ${i.str}%</span>`];
+    if (i.hum) tags.push(`<span class="tag">طنين ${i.hum}Hz</span>`);
+    tags.push(`<span class="tag g" dir="ltr">${i.nfB} → ${i.nfA} dB</span>`);
+    for (const e of (i.exports || [])) tags.push(`<span class="tag g">⬇ ${esc(e)}</span>`);
+    html += `<div class="hitem"><div class="ic">${i.kind === 'video' ? '🎬' : '🎧'}</div>
+      <div><div class="nm">${esc(i.name)}</div><div class="mt">${fmtDur(i.dur)} · ${(i.size / 1048576).toFixed(1)} ميجا · اتعالج في ${i.secs} ث</div><div class="tags">${tags.join('')}</div></div>
+      <div><div class="tm">${d.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' })}</div><button class="del" data-id="${i.id}" title="حذف من السجل">حذف</button></div></div>`;
+  }
+  $('#hList').innerHTML = html;
+  $('#hList').querySelectorAll('.del').forEach(b => b.onclick = () => deleteHist(b.dataset.id));
+}
+document.querySelectorAll('#hf .chip').forEach(c => c.onclick = () => { H.range = c.dataset.r; document.querySelectorAll('#hf .chip').forEach(x => x.classList.toggle('on', x === c)); renderHistory(); });
+function showView(v) {
+  $('#viewTool').classList.toggle('hidden', v !== 'tool'); $('#viewHist').classList.toggle('hidden', v !== 'hist');
+  $('#tabTool').classList.toggle('on', v === 'tool'); $('#tabHist').classList.toggle('on', v === 'hist');
+  if (v === 'hist') { stopPlay(); renderHistory(); }
+}
+$('#tabTool').onclick = () => showView('tool'); $('#tabHist').onclick = () => showView('hist');
+$('#hCsv').onclick = async () => {
+  const list = H.items.filter(i => inRange(i.ts, H.range)).sort((a, b) => a.ts - b.ts);
+  if (!list.length) { toast('مفيش بيانات في الفترة دي'); return; }
+  const head = ['التاريخ', 'الوقت', 'اسم الملف', 'النوع', 'المدة (ث)', 'الإعداد', 'المحرك', 'القوة %', 'الطنين Hz', 'الضوضاء قبل dB', 'الضوضاء بعد dB', 'LUFS قبل', 'LUFS بعد', 'وقت المعالجة (ث)', 'التصدير'];
+  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const rows = list.map(i => { const d = new Date(i.ts); return [d.toLocaleDateString('en-CA'), d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), i.name, i.kind === 'video' ? 'فيديو' : 'صوت', i.dur, PRESET_AR[i.preset] || i.preset, i.engine, i.str, i.hum || '', i.nfB, i.nfA, i.lB, i.lA, i.secs, (i.exports || []).join(' + ')].map(q).join(','); });
+  const names = { today: 'اليوم', week: 'اسبوع', month: 'الشهر', all: 'الكل' };
+  await saveBlob(new Blob(['﻿' + [head.map(q).join(','), ...rows].join('\r\n')], { type: 'text/csv' }), `safi-log-${names[H.range]}-${new Date().toLocaleDateString('en-CA')}.csv`);
+};
+
+/* ---------------- install as app (PWA) ---------------- */
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('./sw.js').catch(e => console.warn('sw', e));
+const standalone = () => matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches || navigator.standalone;
+let deferredPrompt = null;
+if (!standalone()) $('#installBtn').classList.remove('hidden');
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+window.addEventListener('appinstalled', () => { $('#installBtn').classList.add('hidden'); toast('تم تثبيت «صافي» ✓ — هتلاقيه في البرامج عندك'); });
+$('#installBtn').onclick = async () => {
+  if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; return; }
+  const ua = navigator.userAgent, isSafari = /Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua), isMac = /Macintosh/.test(ua), isIOS = /iPhone|iPad/.test(ua);
+  let html;
+  if (isIOS) html = '<ol><li>اضغط زر المشاركة <b>⎋</b> تحت.</li><li>اختار <b>«إضافة إلى الشاشة الرئيسية»</b>.</li></ol>';
+  else if (isSafari && isMac) html = '<ol><li>من قائمة <b>File / ملف</b> فوق.</li><li>اختار <b>«Add to Dock / إضافة إلى Dock»</b>.</li></ol>';
+  else if (/Firefox/.test(ua)) html = '<p>فايرفوكس مش بيدعم تثبيت البرامج من الويب. افتح الصفحة في <b>Chrome</b> أو <b>Edge</b> واضغط «ثبّت البرنامج».</p>';
+  else html = '<ol><li>في شريط العنوان فوق، اضغط أيقونة التثبيت <b>⊕</b> على اليمين.</li><li>أو من قائمة <b>⋮</b> اختار <b>«تثبيت صافي»</b>.</li></ol>';
+  $('#instBody').innerHTML = html; $('#instModal').classList.remove('hidden');
+};
+$('#instClose').onclick = () => $('#instModal').classList.add('hidden');
+// فتح ملف مباشرة بالبرنامج (Open with → صافي)
+if ('launchQueue' in window) launchQueue.setConsumer(async p => { if (p.files && p.files.length) { const f = await p.files[0].getFile(); showView('tool'); loadFile(f); } });
+
+window.__safi = { S, runPipeline, exportAudio, exportVideo, exportWav, loadFile, rnReady: () => rnReady, get RN() { return RN; }, H, saveHook: null };
+</script>
+</body>
+</html>
